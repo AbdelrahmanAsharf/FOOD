@@ -4,11 +4,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+
 }
 
 model User {
-  id            String  @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String
   image         String
   phone         String?
@@ -64,24 +64,36 @@ model Category {
   products Product[]
 }
 
+// ==================== Paymob Integration ====================
+
 model Order {
-  id            String         @id @default(uuid())
-  paid          Boolean        @default(false)
-  subTotal      Float
-  deliveryFee   Float
-  totalPrice    Float
-  userEmail     String
-  name          String?
-  phone         String?
-  streetAddress String?
-  postalCode    String?
-  city          String?
-  country       String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  products      OrderProduct[]
-  userId        String
-  user          User           @relation(fields: [userId], references: [id])
+  id              String         @id @default(uuid())
+  paid            Boolean        @default(false)
+  subTotal        Float
+  deliveryFee     Float
+  totalPrice      Float
+
+  // Paymob Fields
+  paymobOrderId   Int?           @unique         // Paymob Order ID
+  paymentKey      String?                        // Payment Key (Token)
+  transactionId   String?        @unique         // Paymob Transaction ID
+  paymobStatus    PaymobStatus   @default(PENDING)
+  hmacValidated   Boolean        @default(false)
+
+  userEmail       String
+  name            String?
+  phone           String?
+  streetAddress   String?
+  postalCode      String?
+  city            String?
+  country         String?
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  products        OrderProduct[]
 }
 
 model OrderProduct {
@@ -94,6 +106,8 @@ model OrderProduct {
   product   Product @relation(fields: [productId], references: [id])
   user      User?   @relation(fields: [userId], references: [id])
 }
+
+// ==================== Enums ====================
 
 enum UserRole {
   USER
@@ -112,4 +126,12 @@ enum ExtraIngredients {
   TOMATO
   ONION
   PEPPER
+}
+
+enum PaymobStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
 }

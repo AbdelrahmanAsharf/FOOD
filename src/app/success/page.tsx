@@ -1,42 +1,65 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from "react"
-import { useCartStore } from "@/store/cart-store"
-import { toast } from "sonner"
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 export default function SuccessPage() {
-  const clearCart = useCartStore((state) => state.clearCart)
-  const [loading, setLoading] = useState(true)
+  const params = useSearchParams();
 
+  const orderId = params.get('order');
 
-useEffect(() => {
-  const fetchOrder = async () => {
-      try {
-        const res = await fetch("/api/check-order")
-        if (res.ok) {
-          const data = await res.json()
-          console.log("🧾 Order:", data.order)
-          clearCart()
-          toast.success("تم حفظ الطلب بنجاح 🎉")
-        }
-      } catch (error) {
-        console.error("❌ Error fetching order:", error)
-        toast.error("حدث خطأ أثناء حفظ الطلب")
-      } finally {
-         setLoading(false)
-      }
+  const [loading, setLoading] = useState(true);
+  const [paid, setPaid] = useState(false);
+
+  useEffect(() => {
+    const checkOrder = async () => {
+      const res = await fetch(`/api/orders/${orderId}`);
+
+      const data = await res.json();
+
+      setPaid(data.paid);
+
+      setLoading(false);
+    };
+
+    if (orderId) {
+      checkOrder();
     }
-  fetchOrder()
-}, [clearCart])
+  }, [orderId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        جاري التحقق من الدفع...
+      </div>
+    );
+  }
 
   return (
-    <div className="text-center py-10">
-      <h1 className="text-2xl font-bold">شكرًا لطلبك!</h1>
-      <p className="mt-2">
-        {loading
-          ? "جاري التحقق من الطلب..."
-          : "تم الدفع بنجاح، وستصلك رسالة تأكيد قريبًا."}
-      </p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="bg-white p-10 rounded-2xl shadow-xl text-center">
+        {paid ? (
+          <>
+            <h1 className="text-4xl font-bold text-green-600">
+              ✅ تم الدفع بنجاح
+            </h1>
+
+            <p className="mt-4 text-gray-600">
+              رقم الطلب: {orderId}
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className="text-4xl font-bold text-yellow-500">
+              ⏳ جاري تأكيد الدفع
+            </h1>
+
+            <p className="mt-4 text-gray-600">
+              انتظر لحظات...
+            </p>
+          </>
+        )}
+      </div>
     </div>
-  )
+  );
 }
