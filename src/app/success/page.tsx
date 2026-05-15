@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-export default function SuccessPage() {
+function SuccessContent() {
   const params = useSearchParams();
 
   const orderId = params.get('order');
@@ -13,13 +13,17 @@ export default function SuccessPage() {
 
   useEffect(() => {
     const checkOrder = async () => {
-      const res = await fetch(`/api/orders/${orderId}`);
+      try {
+        const res = await fetch(`/api/orders/${orderId}`);
 
-      const data = await res.json();
+        const data = await res.json();
 
-      setPaid(data.paid);
-
-      setLoading(false);
+        setPaid(data.paid);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     if (orderId) {
@@ -61,5 +65,19 @@ export default function SuccessPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <SuccessContent />
+    </Suspense>
   );
 }
