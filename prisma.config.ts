@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
 export default defineConfig({
@@ -6,6 +7,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: "postgresql://postgres:Abdo200432@localhost:5432/food",
+    url: process.env.DATABASE_URL,
   },
 });
