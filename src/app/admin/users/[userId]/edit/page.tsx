@@ -1,18 +1,23 @@
+// app/admin/users/[userId]/edit/page_.tsx
+
 import { ProfileForm } from '@/app/profile/ProfileForm';
-import {getUser} from '@/server/db/users'; // تعمل دالة تجيب بيانات المستخدم من DB
+import { getUser, getUsers } from '@/server/db/users';
 import { notFound } from 'next/navigation';
 import { ProfileFormData } from '@/validations/profile';
 
-interface Props {
-  params: {
-    userId: string;
-  };
+export async function generateStaticParams() {
+  const users = await getUsers();
+  return users.map((user) => ({
+    userId: user.id,
+  }));
+}
+interface PageProps {
+  params: Promise<{ userId: string }>;
 }
 
-export default async function EditUserPage({ params }: Props) {
-  const { userId } = params;
-
-  const user = await getUser(userId); // ✅ اجلب بيانات المستخدم من قاعدة البيانات
+export default async function EditUserPage({ params }: PageProps) {
+  const { userId } =await params;
+  const user = await getUser(userId);
 
   if (!user) return notFound();
 
@@ -23,12 +28,13 @@ export default async function EditUserPage({ params }: Props) {
     postalCode: user.postalCode || '',
     city: user.city || '',
     country: user.country || '',
-    role: user.role, // 'ADMIN' | 'USER'
+    role: user.role,
   };
 
   return (
     <main className="max-w-xl mx-auto my-10 p-6 border rounded-lg shadow-lg bg-white">
-      <ProfileForm defaultValues={defaultValues} userRole="ADMIN" userId={user.id} />
+      {/* هنا غير userId لـ user.clerkId */}
+      <ProfileForm defaultValues={defaultValues} userRole="ADMIN" userId={user.clerkId} />
     </main>
   );
 }

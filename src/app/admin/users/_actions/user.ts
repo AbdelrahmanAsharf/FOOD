@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 
 export const deleteUser = async (id: string) => {
   try {
-    // 1. احضر بيانات المستخدم للحصول على userId بتاع Clerk
+
     const user = await db.user.findUnique({
       where: { id },
       select: { clerkId: true },
@@ -19,15 +19,13 @@ export const deleteUser = async (id: string) => {
       };
     }
 
-    // 2. احذف من Prisma
     await db.user.delete({
       where: { id },
     });
 
-    // 3. احذف من Clerk
     await clerkClient.users.deleteUser(user.clerkId);
 
-    // 4. تحديث الصفحة أو المسارات
+    
     revalidatePath("/admin/users");
 
     return {

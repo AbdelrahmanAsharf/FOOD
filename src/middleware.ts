@@ -4,7 +4,8 @@ import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
   "/", "/contact", "/menu", "/about", "/sign-in", "/sign-up", "/verify-email", "/cart",
-  "/api/stripe/webhook" // ✅ إضافة هذا السطر
+  "/success", "/cancel", 
+  "/api/stripe/webhook"
 ]);
 
 export default clerkMiddleware(async (authFn, req) => {

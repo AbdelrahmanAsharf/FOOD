@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 'use client'
 
 import { useForm } from 'react-hook-form';
@@ -16,7 +16,7 @@ interface Props {
   userId: string; 
 }
 
-export function ProfileForm({ defaultValues, userRole }: Props) {
+export function ProfileForm({ defaultValues, userRole, userId }: Props) {
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues,
@@ -25,22 +25,25 @@ export function ProfileForm({ defaultValues, userRole }: Props) {
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (values: ProfileFormData) => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/update-profile', {
-        method: 'POST',
-        body: JSON.stringify(values),
-      });
+  setLoading(true);
+  try {
+    await fetch("/api/update-profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...values,
+        targetUserId: userId, // هنا userId هو بتاع المستخدم اللي الأدمن بيعدله
+      }),
+    });
+    toast.success("Profile updated");
+  } catch {
+    toast.error("Failed to update profile");
+  } finally {
+    setLoading(false);
+  }
+};
 
-      if (!res.ok) throw new Error('Update failed');
 
-      toast.success('Profile updated');
-    } catch (error) {
-      toast.error('Failed to update profile');
-    }finally {
-      setLoading(false); // ✅ خلص التحميل
-    }
-  };
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

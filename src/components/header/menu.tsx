@@ -21,9 +21,9 @@ export default function SheetDemo() {
         <nav className="p-5 m-auto">
           <ul className="flex flex-col gap-3">
               <Link href="/" className="text-gray-500 text-xl  transition font-semibold hover:text-primary" >Home</Link>
-              <Link href="/" className="text-gray-500 text-xl  transition font-semibold hover:text-primary">About</Link>
-              <Link href="/" className="text-gray-500 text-xl  transition font-semibold hover:text-primary">Contact</Link>
-              <Link href="/" className="text-gray-500 text-xl  transition font-semibold hover:text-primary">Menu</Link>
+              <Link href="/about" className="text-gray-500 text-xl  transition font-semibold hover:text-primary">About</Link>
+              <Link href="/contact" className="text-gray-500 text-xl  transition font-semibold hover:text-primary">Contact</Link>
+              <Link href="/menu" className="text-gray-500 text-xl  transition font-semibold hover:text-primary">Menu</Link>
           </ul>
         </nav>
       </SheetContent>

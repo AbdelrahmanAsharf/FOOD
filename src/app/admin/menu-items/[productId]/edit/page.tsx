@@ -1,36 +1,39 @@
 import { getProduct, getProducts } from "@/server/db/products";
-import { redirect } from "next/navigation";
-import  { Menuform } from "../../_components/Form";
+
+import { Menuform } from "../../_components/Form";
 import { getCategories } from "@/server/db/categories";
+import { redirect } from "next/navigation";
 
-export async function generateStaticParams() {
+export async function generateStaticParams(): Promise<{ productId: string }[]> {
   const products = await getProducts();
-
-  return products.map((product) => ({ productId: product.id }));
+  return products.map((product) => ({
+    productId: String(product.id),
+  }));
 }
 
-interface Props {
-  params: { productId: string };
+interface PageProps {
+  params: Promise<{ productId: string }>;
 }
 
-async function EditProductPage({ params }: Props) {
-  const { productId } = params; // ✅ هكذا نحصل على الـ id من الديناميكية
+export default async function EditProductPage({ params }: PageProps) {
+  const { productId } = await params;
   const product = await getProduct(productId);
   const categories = await getCategories();
 
   if (!product) {
-    redirect(`/admin/menu-items`);
+    redirect("/admin/menu-item");
   }
-
   return (
-    <main>
-      <section>
-        <div className="container">
-          <Menuform categories={categories} product={product} />
-        </div>
-      </section>
-    </main>
-  );
-}
+  <main>
+    <section>
+      <div className="container">
+        <Menuform
+          product={product ?? undefined}
+          categories={categories}
+        />
+      </div>
+    </section>
+  </main>
+);
 
-export default EditProductPage;
+}

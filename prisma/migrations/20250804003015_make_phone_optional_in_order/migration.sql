@@ -1,6 +1,0 @@
--- AlterTable
-ALTER TABLE "public"."Order" ALTER COLUMN "phone" DROP NOT NULL,
-ALTER COLUMN "streetAddress" DROP NOT NULL,
-ALTER COLUMN "postalCode" DROP NOT NULL,
-ALTER COLUMN "city" DROP NOT NULL,
-ALTER COLUMN "country" DROP NOT NULL;

@@ -4,7 +4,7 @@ import { db } from "@/lib/prisma";
 import { addCategorySchema, updateCategorySchema } from "@/validations/category";
 import { revalidatePath } from "next/cache";
 
-// إضافة قسم
+ 
 export const addCategory = async (_: unknown, formData: FormData) => {
   const result = addCategorySchema.safeParse(
     Object.fromEntries(formData.entries())
@@ -38,7 +38,7 @@ export const addCategory = async (_: unknown, formData: FormData) => {
   }
 };
 
-// تعديل قسم
+
 export const updateCategory = async (
   id: string,
   _: unknown,
@@ -78,9 +78,6 @@ export const updateCategory = async (
     };
   }
 };
-
-// حذف قسم
-
 
 
 export const deleteCategory = async (id: string) => {
