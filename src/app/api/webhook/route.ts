@@ -48,10 +48,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const hmac = body.hmac;
 
-    if (!hmac || !validateHmac(body, hmac)) {
-      console.warn('❌ Invalid HMAC received');
-      return NextResponse.json({ error: 'Invalid HMAC' }, { status: 401 });
-    }
+   if (!hmac || !validateHmac(body, hmac)) {
+  console.warn('❌ Invalid HMAC received');
+  return NextResponse.json({ error: 'Invalid HMAC' }, { status: 401 });
+}
 
     const { obj } = body;
     const isSuccess = obj?.success === true;
