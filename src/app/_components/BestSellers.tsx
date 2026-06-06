@@ -1,9 +1,14 @@
 import MainHeading from '@/components/main-heading';
 import Menu from '@/components/menu';
+import { db } from '@/lib/prisma';
 import { getBestSellers } from '@/server/db/products';
 import Image from 'next/image';
+
 async function BestSellers() {
-  const bestSellers = await getBestSellers(3);
+ const [bestSellers, allExtras] = await Promise.all([
+    getBestSellers(3),
+    db.extra.findMany({ orderBy: { name: "asc" } }),
+  ]);
 
 
   return (
@@ -23,7 +28,7 @@ async function BestSellers() {
           <Image src={'/sallad2.png'} width={107} height={195} alt={'sallad'} />
         </div>
       </div>
-        <Menu items={bestSellers} />
+        <Menu items={bestSellers} allExtras={allExtras}/>
       </div>
     </section>
   );
