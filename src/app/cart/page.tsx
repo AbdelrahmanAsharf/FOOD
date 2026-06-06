@@ -19,6 +19,11 @@ async function CartPage() {
   }
 
   console.log(user);
+  const branches = await db.branch.findMany({
+  where: {
+    isActive: true,
+  },
+});
 
   return (
     <main>
@@ -41,6 +46,7 @@ async function CartPage() {
                   city: user.city || "",
                   country: user.country || "",
                 }}
+                branches={branches}
               />
             ) : (
               <section className="section-gap">

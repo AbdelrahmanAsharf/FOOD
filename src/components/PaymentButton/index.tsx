@@ -2,13 +2,14 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface CartItem {
   id: string;
   name: string;
   basePrice?: number;
   price?: number;
-  quantity?: number;     // خليها optional
+  quantity?: number;
 }
 
 interface Props {
@@ -17,7 +18,9 @@ interface Props {
   userId: string;
   subTotal?: number;
   deliveryFee?: number;
-  cartItems?: CartItem[];        
+  cartItems?: CartItem[];
+  deliveryType?: 'HOME' | 'PICKUP';
+  selectedBranchId?: string;
 }
 
 export default function PaymentButton({ 
@@ -25,14 +28,17 @@ export default function PaymentButton({
   billingData, 
   userId, 
   subTotal, 
-  deliveryFee,
-  cartItems = [] 
+  deliveryFee = 0,
+  cartItems = [],
+  deliveryType = 'HOME',
+  selectedBranchId,   // ← محتفظ بيه بدون _
 }: Props) {
 
   const [loading, setLoading] = useState(false);
 
   const handlePayment = async () => {
     setLoading(true);
+
     try {
       const res = await fetch('/api/pay', {
         method: 'POST',
@@ -42,21 +48,24 @@ export default function PaymentButton({
           billingData, 
           userId,
           subTotal: subTotal || amount,
-          deliveryFee: deliveryFee || 0,
-          cartItems   
+          deliveryFee,
+          cartItems,
+          deliveryType,
+          selectedBranchId,     // ← مستخدم هنا
         }),
       });
 
       const data = await res.json();
 
       if (data.success && data.iframe_url) {
+        toast.success('جاري تحويلك إلى صفحة الدفع');
         window.location.href = data.iframe_url;
       } else {
-        alert('حدث خطأ: ' + (data.error || 'Unknown error'));
+        toast.error(data.error || 'حدث خطأ في بدء الدفع');
       }
     } catch (err) {
       console.error(err);
-      alert('فشل في بدء عملية الدفع');
+      toast.error('فشل الاتصال بالخادم');
     } finally {
       setLoading(false);
     }
@@ -66,9 +75,18 @@ export default function PaymentButton({
     <button
       onClick={handlePayment}
       disabled={loading}
-      className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition disabled:opacity-70 w-full"
+      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 
+                 text-white font-bold py-5 px-8 rounded-2xl text-lg transition-all duration-200 
+                 disabled:opacity-70 shadow-lg shadow-green-500/30 active:scale-[0.985]"
     >
-      {loading ? 'جاري التحضير...' : `ادفع ${amount} جنيه`}
+      {loading ? (
+        <>
+          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          جاري التحضير...
+        </>
+      ) : (
+        `ادفع ${amount} جنيه`
+      )}
     </button>
   );
 }

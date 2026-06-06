@@ -4,9 +4,9 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-
 }
 
+// ==================== User Model ====================
 model User {
   id            String         @id @default(cuid())
   name          String
@@ -21,24 +21,26 @@ model User {
   role          UserRole       @default(USER)
   clerkId       String         @unique
   email         String         @unique
+
   orders        Order[]
   orderProducts OrderProduct[]
 }
 
+// ==================== Products ====================
 model Product {
   id          String         @id @default(cuid())
   name        String
   description String
   image       String
   order       Int            @default(autoincrement())
-  basePrice   Float
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+
   categoryId  String
-  extras      Extra[]
-  orders      OrderProduct[]
   category    Category       @relation(fields: [categoryId], references: [id])
+
   sizes       Size[]
+  orders      OrderProduct[]
 }
 
 model Size {
@@ -50,11 +52,9 @@ model Size {
 }
 
 model Extra {
-  id        String           @id @default(cuid())
-  name      ExtraIngredients
-  price     Float
-  productId String
-  product   Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id       String    @id @default(cuid())
+  name     String
+  price    Float
 }
 
 model Category {
@@ -64,8 +64,23 @@ model Category {
   products Product[]
 }
 
-// ==================== Paymob Integration ====================
+// ==================== الفروع (Branches) ====================
+model Branch {
+  id          String   @id @default(cuid())
+  name        String   // مثل: "فرع العجمي - الإسكندرية"
+  address     String
+  phone       String?
+  city        String
+  area        String?   // الحي
+  isActive    Boolean  @default(true)
 
+  orders      Order[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==================== Paymob Integration ====================
 model Order {
   id              String         @id @default(uuid())
   paid            Boolean        @default(false)
@@ -74,19 +89,24 @@ model Order {
   totalPrice      Float
 
   // Paymob Fields
-  paymobOrderId   Int?           @unique         // Paymob Order ID
-  paymentKey      String?                        // Payment Key (Token)
-  transactionId   String?        @unique         // Paymob Transaction ID
+  paymobOrderId   Int?           @unique
+  paymentKey      String?
+  transactionId   String?        @unique
   paymobStatus    PaymobStatus   @default(PENDING)
-  hmacValidated   Boolean        @default(false)
 
-  userEmail       String
-  name            String?
-  phone           String?
-  streetAddress   String?
+  // Customer Info
+  customerName    String
+  customerPhone   String
+  streetAddress   String
   postalCode      String?
-  city            String?
-  country         String?
+  city            String
+  country         String         @default("EG")
+
+  // Delivery & Payment Info
+  deliveryType    DeliveryType   @default(HOME)
+  paymentMethod   PaymentMethod  @default(VISA)
+  branchId        String?
+  branch          Branch?        @relation(fields: [branchId], references: [id])
 
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -120,13 +140,6 @@ enum ProductSizes {
   LARGE
 }
 
-enum ExtraIngredients {
-  CHEESE
-  BACON
-  TOMATO
-  ONION
-  PEPPER
-}
 
 enum PaymobStatus {
   PENDING
@@ -134,4 +147,14 @@ enum PaymobStatus {
   FAILED
   REFUNDED
   PARTIALLY_REFUNDED
+}
+
+enum DeliveryType {
+  HOME        // توصيل للمنزل
+  PICKUP      // استلام من الفرع
+}
+
+enum PaymentMethod {
+  VISA
+  CASH_ON_DELIVERY
 }

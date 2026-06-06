@@ -10,17 +10,23 @@ function SuccessContent() {
   const clearCart = useCartStore((state) => state.clearCart);
 
   const paymobOrderId = searchParams.get("order");
+  const isSuccess = searchParams.get("success") === "true"; // ✅ من Paymob URL
 
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [attempts, setAttempts] = useState(0);
 
-  useEffect(() => {
-    clearCart();
-  }, [clearCart]);
+useEffect(() => {
+  if (isSuccess) clearCart();
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
   useEffect(() => {
     if (!paymobOrderId) {
+      setLoading(false);
+      return;
+    }
+    if (!isSuccess) {
       setLoading(false);
       return;
     }
@@ -52,7 +58,29 @@ function SuccessContent() {
     };
 
     fetchOrder();
-  }, [paymobOrderId, attempts]);
+  }, [paymobOrderId, attempts, isSuccess]);
+  if (!isSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-red-50">
+        <div className="bg-white p-12 rounded-3xl shadow-2xl text-center max-w-md w-full">
+          <div className="text-6xl mb-4">❌</div>
+          <h1 className="text-3xl font-bold text-red-700 mb-3">فشل الدفع</h1>
+          <p className="text-gray-500 mb-2">
+            {searchParams.get("data.message") || "حدث خطأ أثناء الدفع"}
+          </p>
+          <p className="text-sm text-gray-400 mb-8">
+            يرجى التحقق من بيانات الكارت والمحاولة مرة أخرى
+          </p>
+          <button
+            onClick={() => (window.location.href = "/cart")}
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl text-lg"
+          >
+            العودة للكارت
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

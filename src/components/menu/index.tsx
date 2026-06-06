@@ -1,12 +1,13 @@
 import { ProductWithRelations } from '@/types/product';
 import MenuItem from './MenuItem';
+import { Extra } from '@prisma/client';
 
 
-async function Menu({ items }: { items: ProductWithRelations[]}) {
+async function Menu({ items, allExtras }: { items: ProductWithRelations[]; allExtras: Extra[] }) {
   return items.length > 0 ? (
     <ul className='grid grid-cols-1 sm:grid-cols-3 gap-4 py-9'>
       {items.map((item) => (
-        <MenuItem key={item.id} item={item} />
+        <MenuItem key={item.id} item={item} allExtras={allExtras} />
       ))}
     </ul>
   ) : (

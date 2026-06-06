@@ -1,13 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-//src\app\api\pay\route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { PaymobService } from '@/lib/paymob';
 
 export async function POST(req: NextRequest) {
   try {
-    const { amount, billingData, userId, subTotal, deliveryFee, cartItems = [] } = await req.json();
+    const { 
+      amount, 
+      billingData, 
+      userId, 
+      subTotal, 
+      deliveryFee, 
+      cartItems = [],
+      deliveryType = 'HOME',
+      selectedBranchId 
+    } = await req.json();
 
-    console.log("📥 Pay Request Received:", { amount, userId, cartItemsLength: cartItems.length });
+    console.log("📥 Pay Request Received:", { 
+      amount, 
+      userId, 
+      deliveryType, 
+      selectedBranchId,
+      cartItemsLength: cartItems.length 
+    });
 
     if (!amount || amount <= 0) {
       return NextResponse.json({ success: false, error: "Invalid amount" }, { status: 400 });
@@ -22,7 +36,9 @@ export async function POST(req: NextRequest) {
       userId,
       subTotal || amount,
       deliveryFee || 0,
-      cartItems
+      cartItems,
+      deliveryType,
+      selectedBranchId
     );
 
     return NextResponse.json(result);

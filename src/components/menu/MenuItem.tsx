@@ -3,9 +3,13 @@ import { formatCurrency } from "@/lib/formatters";
 import { ProductWithRelations } from "@/types/product";
 import Image from "next/image";
 import AddToCartButton from "./add-to-cart-button";
+import { Extra } from "@prisma/client";
 
 
-function MenuItem({ item }: { item: ProductWithRelations }) {
+function MenuItem({ item , allExtras }: { item: ProductWithRelations; allExtras: Extra[] }) {
+  const minPrice = item.sizes.length > 0
+  ? Math.min(...item.sizes.map((s) => s.price))
+  : 0;
   return (
     <li
       className="p-6 rounded-lg text-center
@@ -17,11 +21,11 @@ function MenuItem({ item }: { item: ProductWithRelations }) {
       <div className="flex items-center justify-between mb-4">
         <h4 className="font-semibold text-xl my-3">{item.name}</h4>
         <strong className="text-gray=600">
-          {formatCurrency(item.basePrice)}
+           {formatCurrency(minPrice)}
         </strong>
       </div>
       <p className="text-gray-700 text-sm line-clamp-3">{item.description}</p>
-      <AddToCartButton item={item} />
+      <AddToCartButton item={item} allExtras={allExtras} />
     </li>
   );
 }

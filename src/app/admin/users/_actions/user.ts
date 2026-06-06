@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { clerkClient } from "@clerk/clerk-sdk-node"; // ✅
+import { clerkClient } from "@clerk/clerk-sdk-node"; // 
 import { revalidatePath } from "next/cache";
 
 export const deleteUser = async (id: string) => {

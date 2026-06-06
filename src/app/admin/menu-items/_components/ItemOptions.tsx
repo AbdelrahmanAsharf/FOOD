@@ -1,211 +1,123 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-//itemOptions.tsx
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+"use client";
 
-import { Extra, ExtraIngredients, ProductSizes, Size } from "@prisma/client";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Plus, Trash2 } from "lucide-react";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { ProductSizes, Size } from "@prisma/client";
 
-
-
-export enum ItemOptionsKeys {
-  SIZES,
-  EXTRAS,
-}
-
-const sizesNames = [
-  ProductSizes.SMALL,
-  ProductSizes.MEDIUM,
-  ProductSizes.LARGE,
-];
-
-const extrasNames = [
-  ExtraIngredients.CHEESE,
-  ExtraIngredients.BACON,
-  ExtraIngredients.ONION,
-  ExtraIngredients.PEPPER,
-  ExtraIngredients.TOMATO,
-];
-
-function handleOptions(
-  setState:
-    | React.Dispatch<React.SetStateAction<Partial<Size>[]>>
-    | React.Dispatch<React.SetStateAction<Partial<Extra>[]>>
-) {
-  const addOption = () => {
-    setState((prev: any) => {
-      return [...prev, { name: "", price: 0 }];
-    });
-  };
-  const onChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-    fieldName: string
-  ) => {
-    const newValue = e.target.value;
-    setState((prev: any) => {
-      const newSizes = [...prev];
-      newSizes[index][fieldName] = newValue;
-      return newSizes;
-    });
-  };
-  const removeOption = (indexToRemove: number) => {
-    setState((prev: any) => {
-      return prev.filter((_: any, index: number) => index !== indexToRemove);
-    });
-  };
-  return { addOption, onChange, removeOption };
-}
-
-function ItemOptions({
-  state,
-  setState,
-  optionKey,
-}: {
-  state: Partial<Size>[] | Partial<Extra>[];
-  setState:
-    | React.Dispatch<React.SetStateAction<Partial<Size>[]>>
-    | React.Dispatch<React.SetStateAction<Partial<Extra>[]>>;
-  optionKey: ItemOptionsKeys;
-}) {
-  const { addOption, onChange, removeOption } = handleOptions(setState);
-
-  const isThereAvailableOptions = () => {
-    switch (optionKey) {
-      case ItemOptionsKeys.SIZES:
-        return sizesNames.length > state.length;
-      case ItemOptionsKeys.EXTRAS:
-        return extrasNames.length > state.length;
-    }
-  };
-  return (
-    <>
-      {state.length > 0 && (
-        <ul>
-          {state.map((item, index) => {
-            return (
-              <li key={index} className="flex gap-2 mb-2">
-                <div className="space-y-1 basis-1/2">
-                  <Label>name</Label>
-                  <SelectName
-                    item={item}
-                    onChange={onChange}
-                    index={index}
-                    currentState={state}
-                    optionKey={optionKey}
-                  />
-                </div>
-                <div className="space-y-1 basis-1/2">
-                  <Label>Extra Price</Label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    min={0}
-                    name="price"
-                    value={item.price}
-                    onChange={(e) => onChange(e, index, "price")}
-                    className="bg-white focus:!ring-0"
-                  />
-                </div>
-                <div className="flex items-end">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => removeOption(index)}
-                  >
-                    <Trash2 />
-                  </Button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-      {isThereAvailableOptions() && (
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          onClick={addOption}
-        >
-          <Plus />
-          {optionKey === ItemOptionsKeys.SIZES
-            ? "add Item Size"
-            : "add Extra Item"}
-        </Button>
-      )}
-    </>
-  );
-}
-
-export default ItemOptions;
-
-const SelectName = ({
-  onChange,
-  index,
-  item,
-  currentState,
-  optionKey,
-}: {
-  index: number;
-  item: Partial<Size> | Partial<Extra>;
-  currentState: Partial<Size>[] | Partial<Extra>[];
-  optionKey: ItemOptionsKeys;
-  onChange: (e: any, index: any, fieldName: any) => void;
-}) => {
-
-
-  const getNames = () => {
-    switch (optionKey) {
-      case ItemOptionsKeys.SIZES:
-        const filteredSizes = sizesNames.filter(
-          (size) => !currentState.some((s) => s.name === size)
-        );
-        return filteredSizes;
-      case ItemOptionsKeys.EXTRAS:
-        const filteredExtras = extrasNames.filter(
-          (extra) => !currentState.some((e) => e.name === extra)
-        );
-        return filteredExtras;
-    }
-  };
-
-  const names = getNames();
-
-  return (
-    <Select
-      onValueChange={(value) => {
-        onChange({ target: { value } }, index, "name");
-      }}
-      defaultValue={item.name ? item.name : "select..."}
-    >
-      <SelectTrigger
-        className=" bg-white border-none mb-4 focus:ring-0  flex-row"
-      >
-        <SelectValue>{item.name ? item.name : "select..."}</SelectValue>
-      </SelectTrigger>
-      <SelectContent className=" border-none z-50 bg-white">
-        <SelectGroup className="bg-background text-accent z-50">
-          {names.map((name, index) => (
-            <SelectItem
-              key={index}
-              value={name}
-              className="hover:!bg-primary hover:!text-white !text-gray-700 !bg-transparent"
-            >
-              {name}
-            </SelectItem>
-          ))}
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  );
+type ItemOptionsProps = {
+  state: Partial<Size>[];
+  setState: React.Dispatch<React.SetStateAction<Partial<Size>[]>>;
+  title: string;
 };
+
+const ALL_SIZES = [ProductSizes.SMALL, ProductSizes.MEDIUM, ProductSizes.LARGE];
+
+export default function ItemOptions({ state, setState, title }: ItemOptionsProps) {
+  const addOption = () => {
+    setState((prev) => [...prev, { name: undefined, price: 0 }]);
+  };
+
+  const onChangeName = (value: ProductSizes, index: number) => {
+    setState((prev) => {
+      const newItems = [...prev];
+      newItems[index] = { ...newItems[index], name: value };
+      return newItems;
+    });
+  };
+
+  const onChangePrice = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    setState((prev) => {
+      const newItems = [...prev];
+      newItems[index] = { ...newItems[index], price: Number(e.target.value) || 0 };
+      return newItems;
+    });
+  };
+
+  const removeOption = (indexToRemove: number) => {
+    setState((prev) => prev.filter((_, i) => i !== indexToRemove));
+  };
+
+  return (
+    <div className="space-y-4 border rounded-xl p-5 bg-gray-50">
+      <div className="flex items-center justify-between">
+        <Label className="text-lg font-semibold">{title}</Label>
+        {state.length < ALL_SIZES.length && (
+          <Button type="button" onClick={addOption} size="sm" variant="outline">
+            <Plus className="w-4 h-4 mr-1" />
+            إضافة
+          </Button>
+        )}
+      </div>
+
+      <div className="space-y-3">
+        {state.map((item, index) => {
+          // الأحجام المتاحة = كل الأحجام ماعدا اللي اتاخدت في rows تانية
+          const availableSizes = ALL_SIZES.filter(
+            (size) => !state.some((s, i) => s.name === size && i !== index)
+          );
+
+          return (
+            <div key={index} className="flex gap-3 items-end bg-white p-4 rounded-lg border">
+              <div className="flex-1">
+                <Label className="text-xs text-gray-500">الحجم</Label>
+                <Select
+                  onValueChange={(value) => onChangeName(value as ProductSizes, index)}
+                  value={item.name || ""}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر الحجم" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableSizes.map((name) => (
+                      <SelectItem key={name} value={name}>
+                        {name === ProductSizes.SMALL
+                          ? "صغير"
+                          : name === ProductSizes.MEDIUM
+                            ? "وسط"
+                            : "كبير"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="w-32">
+                <Label className="text-xs text-gray-500">السعر (جنيه)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={item.price ?? ""}
+                  onChange={(e) => onChangePrice(e, index)}
+                  placeholder="0"
+                />
+              </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => removeOption(index)}
+                className="text-red-500 hover:text-red-600 hover:bg-red-50"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          );
+        })}
+
+        {state.length === 0 && (
+          <p className="text-gray-400 text-center py-8">لم يتم إضافة أي أحجام بعد</p>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -57,9 +57,50 @@ export async function POST(req: NextRequest) {
     const paymobOrderId = obj?.order?.id;
 
     if (!paymobOrderId) {
-      console.warn("⚠️ Webhook received without order id");
       return NextResponse.json({ error: "No order id" }, { status: 400 });
     }
+
+    if (isSuccess) {
+      const metadata = JSON.parse(obj?.order?.items?.[0]?.name || "{}");
+
+      const dbOrder = await db.order.create({
+        data: {
+          userId: metadata.userId,
+          customerName:
+            `${obj.billing_data?.first_name} ${obj.billing_data?.last_name}`.trim(),
+          customerPhone: obj.billing_data?.phone_number || "NA",
+          streetAddress: obj.billing_data?.street || "NA",
+          city: obj.billing_data?.city || "Cairo",
+          country: "EG",
+          deliveryType: metadata.deliveryType || "HOME",
+          branchId: metadata.branchId || null,
+          paymobOrderId: Number(paymobOrderId),
+          paymobStatus: "PAID",
+          transactionId: obj?.id?.toString(),
+          subTotal: metadata.subTotal,
+          deliveryFee: metadata.deliveryFee,
+          totalPrice: obj.amount_cents / 100,
+          paid: true,
+        },
+      });
+
+      if (metadata.cartItems?.length > 0) {
+        await db.orderProduct.createMany({
+          data: metadata.cartItems
+            .filter((item: any) => item.id)
+            .map((item: any) => ({
+              orderId: dbOrder.id,
+              productId: item.id,
+              quantity: Number(item.quantity) || 1,
+              userId: metadata.userId,
+            })),
+          skipDuplicates: true,
+        });
+      }
+
+      console.log(`✅ Order saved: ${dbOrder.id}`);
+    }
+
 
     const updated = await db.order.updateMany({
       where: { paymobOrderId: Number(paymobOrderId) },

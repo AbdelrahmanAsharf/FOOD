@@ -14,10 +14,11 @@ const nextConfig: NextConfig = {
     ],
     domains: ['res.cloudinary.com'],
   },
+
   experimental: {
     serverActions: {
-      bodySizeLimit: '2mb', // (افتراضي: 1MB)
-      allowedOrigins: ['http://localhost:3000'], // أو ['*'] لو كل المواقع
+      bodySizeLimit: '2mb',
+      allowedOrigins: ['http://localhost:3000'],
     },
   },
 };

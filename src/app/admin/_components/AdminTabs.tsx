@@ -28,6 +28,14 @@ function AdminTabs() {
       title: 'Orders',
       href: '/admin/orders',
     },
+    {
+      title: 'Branches',
+      href: '/admin/branches',
+    },
+    {
+      title: 'Extras',
+      href: '/admin/extras',
+    },
   ];
 
   const isActiveTab = (href: string) => pathname.startsWith(href);

@@ -20,10 +20,10 @@ async function Page() {
               className="flex flex-col gap-2 p-4 rounded-md bg-gray-100 shadow-sm"
             >
               <div className="text-sm text-gray-800">
-                <span className="font-semibold">الاسم:</span> {order.name || 'غير معروف'}
+                <span className="font-semibold">الاسم:</span> {order.customerName }
               </div>
               <div className="text-sm text-gray-800">
-                <span className="font-semibold">البريد:</span> {order.userEmail}
+                <span className="font-semibold">البريد:</span> {order.streetAddress}
               </div>
               <div className="text-sm text-gray-800">
                 <span className="font-semibold">الإجمالي:</span> {order.totalPrice} ج.م
