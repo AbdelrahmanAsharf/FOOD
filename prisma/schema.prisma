@@ -93,6 +93,7 @@ model Order {
   paymentKey      String?
   transactionId   String?        @unique
   paymobStatus    PaymobStatus   @default(PENDING)
+  hmacValidated   Boolean        @default(false)
 
   // Customer Info
   customerName    String

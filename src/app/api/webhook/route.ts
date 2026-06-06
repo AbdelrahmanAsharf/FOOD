@@ -66,8 +66,7 @@ export async function POST(req: NextRequest) {
       const dbOrder = await db.order.create({
         data: {
           userId: metadata.userId,
-          customerName:
-            `${obj.billing_data?.first_name} ${obj.billing_data?.last_name}`.trim(),
+          customerName: `${obj.billing_data?.first_name} ${obj.billing_data?.last_name}`.trim(),
           customerPhone: obj.billing_data?.phone_number || "NA",
           streetAddress: obj.billing_data?.street || "NA",
           city: obj.billing_data?.city || "Cairo",
@@ -99,30 +98,17 @@ export async function POST(req: NextRequest) {
       }
 
       console.log(`✅ Order saved: ${dbOrder.id}`);
+    } else {
+      console.log(`❌ Payment failed for Paymob order: ${paymobOrderId}`);
     }
 
-
-    const updated = await db.order.updateMany({
-      where: { paymobOrderId: Number(paymobOrderId) },
-      data: {
-        paid: isSuccess,
-        paymobStatus: isSuccess ? "PAID" : "FAILED",
-        transactionId: obj?.id?.toString(),
-        hmacValidated: true,
-        updatedAt: new Date(),
-      },
-    });
-
-    console.log(
-      `✅ Webhook: Order ${paymobOrderId} → ${isSuccess ? "PAID" : "FAILED"} | Updated: ${updated.count} rows`,
-    );
-
     return NextResponse.json({ success: true });
+
   } catch (error: any) {
     console.error("Webhook Error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
