@@ -1,4 +1,3 @@
-// app/loading-payment/page.tsx
 
 export default function LoadingPaymentPage() {
   return (

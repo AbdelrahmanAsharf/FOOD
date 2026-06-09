@@ -31,7 +31,7 @@ export default function PaymentButton({
   deliveryFee = 0,
   cartItems = [],
   deliveryType = 'HOME',
-  selectedBranchId,   // ← محتفظ بيه بدون _
+  selectedBranchId,  
 }: Props) {
 
   const [loading, setLoading] = useState(false);
@@ -51,7 +51,7 @@ export default function PaymentButton({
           deliveryFee,
           cartItems,
           deliveryType,
-          selectedBranchId,     // ← مستخدم هنا
+          selectedBranchId,     
         }),
       });
 

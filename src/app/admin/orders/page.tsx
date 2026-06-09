@@ -15,28 +15,52 @@ async function Page() {
       ) : (
         <ul className="flex flex-col gap-4">
           {orders.map((order) => (
-            <li
-              key={order.id}
-              className="flex flex-col gap-2 p-4 rounded-md bg-gray-100 shadow-sm"
-            >
+            <li key={order.id} className="flex flex-col gap-2 p-4 rounded-md bg-gray-100 shadow-sm">
+              
               <div className="text-sm text-gray-800">
-                <span className="font-semibold">الاسم:</span> {order.customerName }
+                <span className="font-semibold">الاسم:</span> {order.customerName}
               </div>
+
               <div className="text-sm text-gray-800">
-                <span className="font-semibold">البريد:</span> {order.streetAddress}
+                <span className="font-semibold">التليفون:</span> {order.customerPhone}
               </div>
+
+              <div className="text-sm text-gray-800">
+                <span className="font-semibold">نوع التوصيل:</span>{" "}
+                {order.deliveryType === "HOME" ? "🚚 توصيل للمنزل" : "🏪 استلام من الفرع"}
+              </div>
+
+              {order.deliveryType === "HOME" && (
+                <div className="text-sm text-gray-800">
+                  <span className="font-semibold">العنوان:</span> {order.streetAddress}
+                </div>
+              )}
+
+              {order.deliveryType === "PICKUP" && order.branch && (
+                <div className="text-sm text-gray-800">
+                  <span className="font-semibold">الفرع:</span> {order.branch.name} - {order.branch.city}
+                </div>
+              )}
+
+              <div className="text-sm text-gray-800">
+                <span className="font-semibold">طريقة الدفع:</span>{" "}
+                {order.paymentMethod === "VISA" ? "💳 فيزا" : "💵 كاش عند الاستلام"}
+              </div>
+
               <div className="text-sm text-gray-800">
                 <span className="font-semibold">الإجمالي:</span> {order.totalPrice} ج.م
               </div>
+
               <div className="text-sm">
-                <span className="font-semibold">الحالة:</span>{' '}
-                <span className={order.paid ? 'text-green-600' : 'text-red-600'}>
-                  {order.paid ? 'مدفوع' : 'غير مدفوع'}
+                <span className="font-semibold">الحالة:</span>{" "}
+                <span className={order.paid ? "text-green-600" : "text-red-600"}>
+                  {order.paid ? "✅ مدفوع" : "⏳ غير مدفوع"}
                 </span>
               </div>
+
               <div className="text-sm text-gray-500">
-                <span className="font-semibold">التاريخ:</span>{' '}
-                {format(new Date(order.createdAt), 'yyyy-MM-dd HH:mm', { locale: arEG })}
+                <span className="font-semibold">التاريخ:</span>{" "}
+                {format(new Date(order.createdAt), "yyyy-MM-dd HH:mm", { locale: arEG })}
               </div>
 
               {order.products?.length > 0 && (

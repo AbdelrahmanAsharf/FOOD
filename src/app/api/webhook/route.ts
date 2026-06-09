@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/app/api/webhook/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
@@ -63,32 +62,22 @@ export async function POST(req: NextRequest) {
     if (isSuccess) {
       const metadata = JSON.parse(obj?.order?.items?.[0]?.name || "{}");
 
-      const dbOrder = await db.order.create({
+      const updatedOrder = await db.order.update({
+        where: { paymobOrderId: Number(paymobOrderId) },
         data: {
-          userId: metadata.userId,
-          customerName: `${obj.billing_data?.first_name} ${obj.billing_data?.last_name}`.trim(),
-          customerPhone: obj.billing_data?.phone_number || "NA",
-          streetAddress: obj.billing_data?.street || "NA",
-          city: obj.billing_data?.city || "Cairo",
-          country: "EG",
-          deliveryType: metadata.deliveryType || "HOME",
-          branchId: metadata.branchId || null,
-          paymobOrderId: Number(paymobOrderId),
+          paid: true,
           paymobStatus: "PAID",
           transactionId: obj?.id?.toString(),
-          subTotal: metadata.subTotal,
-          deliveryFee: metadata.deliveryFee,
-          totalPrice: obj.amount_cents / 100,
-          paid: true,
         },
       });
 
+      // ✅ استخدم updatedOrder.id
       if (metadata.cartItems?.length > 0) {
         await db.orderProduct.createMany({
           data: metadata.cartItems
             .filter((item: any) => item.id)
             .map((item: any) => ({
-              orderId: dbOrder.id,
+              orderId: updatedOrder.id, // ✅
               productId: item.id,
               quantity: Number(item.quantity) || 1,
               userId: metadata.userId,
@@ -97,18 +86,17 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      console.log(`✅ Order saved: ${dbOrder.id}`);
+      console.log(`✅ Order updated: ${updatedOrder.id}`);
     } else {
       console.log(`❌ Payment failed for Paymob order: ${paymobOrderId}`);
     }
 
     return NextResponse.json({ success: true });
-
   } catch (error: any) {
     console.error("Webhook Error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

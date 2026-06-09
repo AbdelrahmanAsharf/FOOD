@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useSignUp, useAuth } from '@clerk/nextjs';
+import { useSignUp } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -17,7 +16,6 @@ export default function VerifyEmailPage() {
   const handleVerify = async () => {
     setLoading(true);
     try {
-      // التحقق من الكود
       const result = await signUp!.attemptEmailAddressVerification({ code });
 
       if (result?.status !== 'complete') {
@@ -33,10 +31,8 @@ export default function VerifyEmailPage() {
         return;
       }
 
-      // تفعيل الجلسة
       await setActive?.({ session: sessionId });
 
-      // تعيين الدور USER
       const setRoleRes = await fetch('/api/set-role', {
         method: 'POST',
         body: JSON.stringify({ userId, role: 'USER' }),

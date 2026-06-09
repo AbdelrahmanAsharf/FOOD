@@ -12,7 +12,6 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { name, phone, city, country, image, role, streetAddress, postalCode, targetUserId } = body;
 
-    // جلب بيانات المستخدم الحالي
     const currentUser = await db.user.findUnique({
       where: { clerkId: userId },
     });
@@ -23,10 +22,8 @@ export async function POST(req: Request) {
 
     const isAdmin = currentUser.role === "ADMIN";
 
-    // مين الحساب اللي هيتعدل
     const targetId = isAdmin && targetUserId ? targetUserId : userId;
 
-    // التحديث
     const updatedUser = await db.user.update({
       where: { clerkId: targetId },
       data: {

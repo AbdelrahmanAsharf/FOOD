@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-//src\app\api\verify-order\route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/prisma';
 

@@ -1,4 +1,4 @@
-                "use client";
+"use client";
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -17,10 +17,7 @@ import PaymentButton from "@/components/PaymentButton";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-type Branch = {
-  id: string;
-  name: string;
-};
+type Branch = { id: string; name: string };
 
 type UserProps = {
   user: {
@@ -40,38 +37,53 @@ function CheckoutForm({ user, branches }: UserProps) {
   const cart = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clearCart);
   const router = useRouter();
+
   const subTotal = getSubTotal(cart);
   const delivery = deliveryFee;
   const totalAmount = getTotalAmount(cart);
 
   const [deliveryType, setDeliveryType] = useState<"HOME" | "PICKUP">("HOME");
   const [paymentMethod, setPaymentMethod] = useState<"CARD" | "CASH">("CARD");
-  const [selectedBranchId, setSelectedBranchId] = useState<string>("");
-  const [customerName, setCustomerName] = useState(user.username);
+  const [selectedBranchId, setSelectedBranchId] = useState("");
+  const [customerName, setCustomerName] = useState(user.username || "");
   const [customerPhone, setCustomerPhone] = useState(user.phone || "");
   const [streetAddress, setStreetAddress] = useState(user.streetAddress || "");
+  const [city, setCity] = useState(user.city || "");
+
   const [cashLoading, setCashLoading] = useState(false);
 
+  const finalAmount = deliveryType === "HOME" ? totalAmount : subTotal;
+  const finalDeliveryFee = deliveryType === "HOME" ? delivery : 0;
+
   const billingData = {
-    first_name: customerName.split(" ")[0] || "عميل",
-    last_name: customerName.split(" ").slice(1).join(" ") || "NA",
+    first_name: customerName,
+    last_name: ".",
     email: user.email,
     phone_number: customerPhone || "+201000000000",
     country: "EG",
-    city: user.city || "Cairo",
+    city: city,
     street: streetAddress || "NA",
-    building: streetAddress || "NA",
+    building: "NA",
     floor: "1",
     apartment: "1",
     postal_code: "12345",
   };
 
   const handleCashOrder = async () => {
-    if (!customerName || !customerPhone) {
-      toast.error("من فضلك أدخل الاسم ورقم التليفون");
+    if (!customerName.trim()) {
+      toast.error("من فضلك أدخل اسمك");
       return;
     }
-    if (deliveryType === "HOME" && !streetAddress) {
+    if (!customerPhone.trim()) {
+      toast.error("من فضلك أدخل رقم التليفون");
+      return;
+    }
+    if (!city.trim()) {
+      // ✅ أضف
+      toast.error("من فضلك أدخل المدينة");
+      return;
+    }
+    if (deliveryType === "HOME" && !streetAddress.trim()) {
       toast.error("من فضلك أدخل العنوان");
       return;
     }
@@ -87,13 +99,16 @@ function CheckoutForm({ user, branches }: UserProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user.id,
-          billingData,
+          customerName: customerName.trim(),
+          customerPhone: customerPhone.trim(),
+          streetAddress: streetAddress.trim(),
+          city: city.trim(),
           subTotal,
-          deliveryFee: delivery,
-          totalPrice: totalAmount,
+          deliveryFee: finalDeliveryFee,
+          totalPrice: finalAmount,
           cartItems: cart,
           deliveryType,
-          selectedBranchId,
+          selectedBranchId: selectedBranchId || null,
         }),
       });
 
@@ -101,6 +116,8 @@ function CheckoutForm({ user, branches }: UserProps) {
       if (data.success) {
         clearCart();
         toast.success("تم تسجيل طلبك بنجاح!");
+        router.refresh(); // ✅ يحدث الصفحة
+
         router.push("/cash-success");
       } else {
         toast.error("حدث خطأ، حاول مرة أخرى");
@@ -111,22 +128,22 @@ function CheckoutForm({ user, branches }: UserProps) {
       setCashLoading(false);
     }
   };
-  if (!cart || cart.length === 0) {
-    return null;
-  }
+
+  if (!cart || cart.length === 0) return null;
+
   return (
     <div className="space-y-8 bg-white rounded-3xl shadow-sm border p-8">
       <h2 className="text-3xl font-bold text-center text-gray-900">
         إتمام الطلب
       </h2>
 
-      {/* معلومات العميل */}
       <div className="space-y-5">
         <div>
-          <Label className="text-gray-700">الاسم الكامل</Label>
+          <Label className="text-gray-700">الاسم</Label>
           <Input
             value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
+            placeholder="اسمك"
             className="mt-1.5"
           />
         </div>
@@ -135,6 +152,16 @@ function CheckoutForm({ user, branches }: UserProps) {
           <Input
             value={customerPhone}
             onChange={(e) => setCustomerPhone(e.target.value)}
+            placeholder="01xxxxxxxxx"
+            className="mt-1.5"
+          />
+        </div>
+        <div>
+          <Label className="text-gray-700">المدينة</Label>
+          <Input
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder="القاهرة، الإسكندرية..."
             className="mt-1.5"
           />
         </div>
@@ -155,20 +182,20 @@ function CheckoutForm({ user, branches }: UserProps) {
       <div>
         <Label className="text-gray-700 block mb-3">نوع التوصيل</Label>
         <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setDeliveryType("HOME")}
-            className={`py-4 rounded-2xl border-2 font-medium transition-all ${deliveryType === "HOME" ? "border-green-600 bg-green-50 text-green-700" : "border-gray-200 hover:border-gray-300"}`}
-          >
-            🚚 توصيل للمنزل
-          </button>
-          <button
-            type="button"
-            onClick={() => setDeliveryType("PICKUP")}
-            className={`py-4 rounded-2xl border-2 font-medium transition-all ${deliveryType === "PICKUP" ? "border-green-600 bg-green-50 text-green-700" : "border-gray-200 hover:border-gray-300"}`}
-          >
-            🏪 استلام من الفرع
-          </button>
+          {(["HOME", "PICKUP"] as const).map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => setDeliveryType(type)}
+              className={`py-4 rounded-2xl border-2 font-medium transition-all ${
+                deliveryType === type
+                  ? "border-green-600 bg-green-50 text-green-700"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+            >
+              {type === "HOME" ? "🚚 توصيل للمنزل" : "🏪 استلام من الفرع"}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -181,13 +208,11 @@ function CheckoutForm({ user, branches }: UserProps) {
               <SelectValue placeholder="اختر أقرب فرع" />
             </SelectTrigger>
             <SelectContent>
-              {branches
-                .filter((b) => b.id) // 👈 مهم جدًا
-                .map((branch) => (
-                  <SelectItem key={branch.id} value={branch.id}>
-                    {branch.name}
-                  </SelectItem>
-                ))}
+              {branches.map((branch) => (
+                <SelectItem key={branch.id} value={branch.id}>
+                  {branch.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -197,20 +222,20 @@ function CheckoutForm({ user, branches }: UserProps) {
       <div>
         <Label className="text-gray-700 block mb-3">طريقة الدفع</Label>
         <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setPaymentMethod("CARD")}
-            className={`py-4 rounded-2xl border-2 font-medium transition-all ${paymentMethod === "CARD" ? "border-green-600 bg-green-50 text-green-700" : "border-gray-200 hover:border-gray-300"}`}
-          >
-            💳 فيزا / بطاقة
-          </button>
-          <button
-            type="button"
-            onClick={() => setPaymentMethod("CASH")}
-            className={`py-4 rounded-2xl border-2 font-medium transition-all ${paymentMethod === "CASH" ? "border-green-600 bg-green-50 text-green-700" : "border-gray-200 hover:border-gray-300"}`}
-          >
-            💵 كاش عند الاستلام
-          </button>
+          {(["CARD", "CASH"] as const).map((method) => (
+            <button
+              key={method}
+              type="button"
+              onClick={() => setPaymentMethod(method)}
+              className={`py-4 rounded-2xl border-2 font-medium transition-all ${
+                paymentMethod === method
+                  ? "border-green-600 bg-green-50 text-green-700"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+            >
+              {method === "CARD" ? "💳 فيزا / بطاقة" : "💵 كاش عند الاستلام"}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -228,18 +253,18 @@ function CheckoutForm({ user, branches }: UserProps) {
         )}
         <div className="flex justify-between font-bold text-lg border-t pt-2">
           <span>الإجمالي</span>
-          <span>{deliveryType === "HOME" ? totalAmount : subTotal} جنيه</span>
+          <span>{finalAmount} جنيه</span>
         </div>
       </div>
 
       {/* زر الدفع */}
       {paymentMethod === "CARD" ? (
         <PaymentButton
-          amount={deliveryType === "HOME" ? totalAmount : subTotal}
+          amount={finalAmount}
           billingData={billingData}
           userId={user.id}
           subTotal={subTotal}
-          deliveryFee={deliveryType === "HOME" ? delivery : 0}
+          deliveryFee={finalDeliveryFee}
           cartItems={cart}
           deliveryType={deliveryType}
           selectedBranchId={selectedBranchId}
@@ -248,15 +273,15 @@ function CheckoutForm({ user, branches }: UserProps) {
         <button
           onClick={handleCashOrder}
           disabled={cashLoading}
-          className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-5 px-8 rounded-2xl text-lg transition-all duration-200 disabled:opacity-70 shadow-lg"
+          className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-5 px-8 rounded-2xl text-lg transition-all disabled:opacity-70 shadow-lg"
         >
           {cashLoading ? (
             <span className="flex items-center justify-center gap-2">
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               جاري تسجيل الطلب...
             </span>
           ) : (
-            `✅ تأكيد الطلب - ${deliveryType === "HOME" ? totalAmount : subTotal} جنيه`
+            `✅ تأكيد الطلب - ${finalAmount} جنيه`
           )}
         </button>
       )}

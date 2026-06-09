@@ -60,7 +60,6 @@ export default function ItemOptions({ state, setState, title }: ItemOptionsProps
 
       <div className="space-y-3">
         {state.map((item, index) => {
-          // الأحجام المتاحة = كل الأحجام ماعدا اللي اتاخدت في rows تانية
           const availableSizes = ALL_SIZES.filter(
             (size) => !state.some((s, i) => s.name === size && i !== index)
           );

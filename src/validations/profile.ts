@@ -8,7 +8,7 @@ export const profileSchema = z.object({
   postalCode: z.string().optional(),
   city: z.string().optional(),
   country: z.string().optional(),
-  role: z.enum(['USER', 'ADMIN']), // 👈 ضفنا role هنا
+  role: z.enum(['USER', 'ADMIN']), 
 });
 
 export type ProfileFormData = z.infer<typeof profileSchema>;

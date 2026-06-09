@@ -105,8 +105,3 @@ function CartItems() {
 }
 
 export default CartItems;
-/*                {item.extras && item.extras.length > 0 && (
-  <span className='text-sm text-gray-500'>
-    + {formatCurrency(item.extras.reduce((sum, e) => sum + e.price, 0) * (item.quantity ?? 1))} إضافات
-  </span>
-)}*/

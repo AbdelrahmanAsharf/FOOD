@@ -1,4 +1,3 @@
-// app/admin/menu-items/_actions/product.ts
 "use server";
 
 import { db } from "@/lib/prisma";

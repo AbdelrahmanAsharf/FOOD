@@ -1,4 +1,3 @@
-// validations/auth.ts
 
 import { z } from 'zod';
 

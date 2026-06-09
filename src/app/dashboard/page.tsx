@@ -4,7 +4,7 @@ import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/prisma';
 
 export default async function DashboardPage() {
-  const { userId } = await auth(); // ✅ await هنا مهم جدًا
+  const { userId } = await auth(); 
 
   if (!userId) {
     redirect('/sign-in');

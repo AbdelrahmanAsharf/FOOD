@@ -5,17 +5,16 @@ import { db } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
-
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = getAuth(req); // ✅ هنا نستخدم NextRequest
+    const { userId } = getAuth(req);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await db.user.findUnique({
-      where: { clerkId: userId }, // ✅ تأكد أن هذا الحقل موجود في Prisma
+      where: { clerkId: userId },
     });
 
     if (!user) {
@@ -23,19 +22,19 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({
-  role: user.role,
-  name: user.name,
-  phone: user.phone,
-  streetAddress: user.streetAddress,
-  postalCode: user.postalCode,
-  city: user.city,
-  country: user.country,
-});
-
+      role: user.role,
+      name: user.name,
+      phone: user.phone,
+      streetAddress: user.streetAddress,
+      postalCode: user.postalCode,
+      city: user.city,
+      country: user.country,
+    });
   } catch (error) {
     console.error("❌ get-role error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
-
-

@@ -4,7 +4,6 @@ import { db } from "@/lib/prisma";
 import {  addBranchSchema, updateBranchSchema } from "@/validations/branche";
 import { revalidatePath } from "next/cache";
 
-// ========== CREATE ==========
 export const addBranch = async (_: unknown, formData: FormData) => {
   const result =   addBranchSchema.safeParse(
     Object.fromEntries(formData.entries())
@@ -72,7 +71,7 @@ export const updateBranch = async (
   return { status: 200, message: "تم التعديل" };
 };
 
-// ========== DELETE ==========
+
 export const deleteBranch = async (id: string) => {
   await db.branch.delete({
     where: { id },

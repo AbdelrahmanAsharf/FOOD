@@ -1,7 +1,4 @@
-// ❌ هذا الاستيراد غير صحيح:
-// import { Clerk } from '@clerk/backend';
 
-// ✅ استخدم الاستيراد الصحيح من @clerk/clerk-sdk-node:
 import { clerkClient } from '@clerk/clerk-sdk-node';
 import { db } from '@/lib/prisma';
 import { NextResponse } from 'next/server';

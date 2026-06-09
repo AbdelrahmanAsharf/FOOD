@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { BillingData } from "@/types/paymob";
+import { db } from "./prisma";
 
 const BASE_URL = "https://accept.paymob.com/api";
 
@@ -78,6 +79,11 @@ export class PaymobService {
         deliveryType,
         branchId: selectedBranchId || null,
         cartItems,
+        customerName:
+          `${billingData.first_name} ${billingData.last_name}`.trim(),
+        customerPhone: billingData.phone_number,
+        streetAddress: billingData.street,
+        city: billingData.city,
       });
       const paymentKey = await this.getPaymentKey(
         authToken,
@@ -85,6 +91,25 @@ export class PaymobService {
         amount * 100,
         billingData,
       );
+      await db.order.create({
+    data: {
+      userId,
+      customerName: `${billingData.first_name} `,
+      customerPhone: billingData.phone_number,
+      streetAddress: billingData.street || "NA",
+      city: billingData.city || "Cairo",
+      country: "EG",
+      deliveryType,
+      branchId: selectedBranchId || null,
+      paymobOrderId: paymobOrder.id,
+      paymentKey,
+      paymobStatus: "PENDING",
+      subTotal,
+      deliveryFee,
+      totalPrice: amount,
+      paid: false,
+    },
+  });
 
       const iframeUrl = `https://accept.paymob.com/api/acceptance/iframes/${process.env.NEXT_PUBLIC_PAYMOB_IFRAME_ID}?payment_token=${paymentKey}`;
 

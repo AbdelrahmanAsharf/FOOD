@@ -10,6 +10,7 @@ export const getOrders = cache(
             product: true,
           },
         },
+        branch: true,
       },
       orderBy: {
         createdAt: "desc",

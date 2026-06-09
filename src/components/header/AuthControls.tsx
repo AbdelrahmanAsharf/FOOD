@@ -14,12 +14,10 @@ export default function AuthControls() {
   useEffect(() => {
     const initUser = async () => {
       try {
-        // ⛳️ تأكد من وجود المستخدم في DB
         await fetch('/api/create-user', {
           method: 'POST',
         });
 
-        // ⏳ انتظر لحظة صغيرة (200-500ms) قبل طلب role
         setTimeout(fetchRole, 100);
       } catch (error) {
         console.error('Error initializing user:', error);
@@ -39,7 +37,7 @@ export default function AuthControls() {
     };
 
     if (isSignedIn && user?.id) {
-      initUser(); // ✅ أنشئ المستخدم ثم احصل على role
+      initUser(); 
     }
   }, [isSignedIn, user?.id]);
 

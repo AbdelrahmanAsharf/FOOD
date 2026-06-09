@@ -10,7 +10,7 @@ function SuccessContent() {
   const clearCart = useCartStore((state) => state.clearCart);
 
   const paymobOrderId = searchParams.get("order");
-  const isSuccess = searchParams.get("success") === "true"; // ✅ من Paymob URL
+  const isSuccess = searchParams.get("success") === "true"; 
 
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -49,7 +49,6 @@ useEffect(() => {
         console.error(error);
       }
 
-      // لو الدفع لسه pending، استنى وحاول تاني (max 5 مرات)
       if (attempts < 5) {
         setTimeout(() => setAttempts((a) => a + 1), 2000);
       } else {

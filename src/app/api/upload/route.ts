@@ -1,4 +1,3 @@
-//upload/route
 
 import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
@@ -21,12 +20,11 @@ export async function POST(req: Request) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  // ✅ إنشاء مجلد مؤقت حسب نظام التشغيل
   const tempFolder = process.platform === "win32" ? "C:\\tmp" : "/tmp";
   const tempPath = path.join(tempFolder, file.name);
 
   try {
-    await mkdir(tempFolder, { recursive: true }); // ✅ أنشئ المجلد لو مش موجود
+    await mkdir(tempFolder, { recursive: true }); 
     await writeFile(tempPath, buffer);
 
     const result = await cloudinary.uploader.upload(tempPath);

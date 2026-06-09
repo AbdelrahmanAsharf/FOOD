@@ -67,11 +67,11 @@ model Category {
 // ==================== الفروع (Branches) ====================
 model Branch {
   id          String   @id @default(cuid())
-  name        String   // مثل: "فرع العجمي - الإسكندرية"
+  name        String 
   address     String
   phone       String?
   city        String
-  area        String?   // الحي
+  area        String?   
   isActive    Boolean  @default(true)
 
   orders      Order[]
@@ -151,8 +151,8 @@ enum PaymobStatus {
 }
 
 enum DeliveryType {
-  HOME        // توصيل للمنزل
-  PICKUP      // استلام من الفرع
+  HOME        
+  PICKUP      
 }
 
 enum PaymentMethod {

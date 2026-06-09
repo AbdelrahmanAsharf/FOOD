@@ -32,7 +32,7 @@ export function ProfileForm({ defaultValues, userRole, userId }: Props) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...values,
-        targetUserId: userId, // هنا userId هو بتاع المستخدم اللي الأدمن بيعدله
+        targetUserId: userId, 
       }),
     });
     toast.success("Profile updated");

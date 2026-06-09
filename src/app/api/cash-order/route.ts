@@ -1,36 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// في أعلى الـ component
-
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
   try {
     const {
       userId,
-      billingData,
+      customerName,
+      customerPhone,
+      streetAddress,
+      city,
       subTotal,
       deliveryFee,
       totalPrice,
       cartItems,
-      deliveryType, 
-      selectedBranchId
+      deliveryType,
+      selectedBranchId,
     } = await req.json();
 
     const order = await db.order.create({
       data: {
         userId,
-        customerName: `${billingData.first_name} ${billingData.last_name}`,
-        customerPhone: billingData.phone_number,
-        streetAddress: billingData.street || "NA",
-        city: billingData.city || "Cairo",
+        customerName,
+        customerPhone,
+        streetAddress: streetAddress || "NA",
+        city: city || "Cairo",
         country: "EG",
         subTotal,
         deliveryFee,
         totalPrice,
-        deliveryType: deliveryType || "HOME",
+        deliveryType,
         paymentMethod: "CASH_ON_DELIVERY",
-        branchId: selectedBranchId || null, // ← مهم
+        branchId: selectedBranchId || null,
         paid: false,
         paymobStatus: "PENDING",
       },
@@ -47,6 +49,17 @@ export async function POST(req: NextRequest) {
         skipDuplicates: true,
       });
     }
+
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        name: customerName || undefined, // ✅ أضف
+        phone: customerPhone || undefined,
+        streetAddress: streetAddress || undefined,
+        city: city || undefined,
+      },
+    });
+    revalidatePath("/cart");
 
     return NextResponse.json({ success: true, orderId: order.id });
   } catch (error) {

@@ -1,4 +1,3 @@
-// components/upload-image.tsx
 import { useRef } from "react"
 import Image from "next/image"
 type Props = {

@@ -3,11 +3,11 @@ import { getAuth } from '@clerk/nextjs/server';
 import { clerkClient } from '@clerk/clerk-sdk-node';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const runtime = 'nodejs'; // ⬅️ عشان Prisma يشتغل
+export const runtime = 'nodejs'; 
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = getAuth(req); // ✅ مرر req هنا
+    const { userId } = getAuth(req); 
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });

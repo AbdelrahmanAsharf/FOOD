@@ -33,7 +33,6 @@ export default async function EditUserPage({ params }: PageProps) {
 
   return (
     <main className="max-w-xl mx-auto my-10 p-6 border rounded-lg shadow-lg bg-white">
-      {/* هنا غير userId لـ user.clerkId */}
       <ProfileForm defaultValues={defaultValues} userRole="ADMIN" userId={user.clerkId} />
     </main>
   );

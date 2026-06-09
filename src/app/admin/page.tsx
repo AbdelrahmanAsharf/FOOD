@@ -17,7 +17,6 @@ export default function AdminPage() {
         const res = await fetch('/api/get-role');
         const data = await res.json();
 
-        // ✅ لو مش Admin، نرجعه
         if (data?.role !== 'ADMIN') {
           router.replace('/');
           return;

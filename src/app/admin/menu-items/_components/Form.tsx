@@ -49,7 +49,7 @@ export function Menuform({
       description: product?.description || "",
       categoryId: product?.categoryId || "",
       sizes: product?.sizes || [],
-      image: product?.image || "", // ✅ هنا
+      image: product?.image || "", 
     },
   });
 
@@ -82,7 +82,7 @@ export function Menuform({
           body: formData,
         });
         const data = await res.json();
-        finalValues.image = data.url; // استخدم هذا الرابط
+        finalValues.image = data.url; 
       }
 
       if (product) {
@@ -98,7 +98,7 @@ export function Menuform({
       console.error(err);
       toast.error("حدث خطأ أثناء الحفظ");
     } finally {
-      setLoading(false); // ✅ ضروري
+      setLoading(false); 
     }
   }
 
@@ -131,7 +131,7 @@ export function Menuform({
                   onFileSelect={(file) => {
                     setSelectedFile(file);
                     const fakeUrl = URL.createObjectURL(file);
-                    form.setValue("image", fakeUrl); // دي مؤقتة بس تخلي Zod يسكت
+                    form.setValue("image", fakeUrl); 
                   }}
                 />
                 <FormMessage />
@@ -194,7 +194,7 @@ export function Menuform({
             )}
           />
 
-          {/* Accordion للأحجام والإضافات */}
+          {/*للأحجام */}
           <Accordion
             type="multiple"
             className="bg-gray-100 rounded-md  px-4  w-full"
